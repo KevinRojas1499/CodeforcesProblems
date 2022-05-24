@@ -3,49 +3,43 @@
 
 using namespace std;
 
-ll process(vector<ll> &t){
-	ll res = 0;
-	for(int i = 0; i<t.size(); i++){
-		if(t[i]){
-			res+= (1<<i);
-		}
-	}
-	return res;
+const ll mxN = 18, mxSize = 1<<18;
+
+ll dp[mxSize][mxN], a[mxSize];
+bool seen[mxSize][mxN];
+
+
+bool affected(ll beg, ll l, ll posChanged){
+	return beg<= posChanged && posChanged < beg+l;
 }
 
-void add(vector<ll> &t, int a, int add){
-	for(int j = 0; j<32; j++){
-		if( a & 1<<j){
-			if(add) t[j]++;
-			else t[j]--;
-		}
-	}	
+ll solve(ll beg, ll length, ll posChanged, bool xorr){
+	if(seen[beg][length] && !affected(beg,length ,posChanged)){
+		return dp[beg][length];
+	}
+	seen[beg][length] = 1;
+	if(length == 1) return dp[beg][length] = a[beg];
+
+	ll left = solve(beg,length/2,posChanged,!xorr);
+	ll right = solve(beg+length/2,length/2,posChanged,!xorr);
+	return dp[beg][length] =  xorr? left ^ right : left | right;
 }
+
 int main(){
-	ll n,m,a,p,b;
-	
+	ll n,m,p,b;
+	memset(dp,0,sizeof dp);
+	memset(seen,false, sizeof seen);
+
 	cin>>n>>m;
-	
-	vector<ll> total(33,0);
-	vector<ll> vals(1<<n);
-	for(int i= 0; i< 1<<n; i++){
-		cin>>vals[i];
-		add(total,vals[i],1);
-
+	ll tot = 1<<n;
+	for(int i = 1; i<=tot; i++){
+		cin>>a[i];
 	}
-	
-	for(auto x: total){
-		cout<<x<<" ";
-	}
-	cout<<"\n";
-	
+	ll lastIsXor = n%2 == 0;
+	solve(1,tot,-1,lastIsXor);
 	for(int i = 0; i<m; i++){
-		 cin>>p>>b;
-		 add(total,vals[i],0);
-		 add(total,b,1);
-		 vals[i] = b;
-		 cout<<process(total)<<"\n";
-	 }
-	 	 
-
+		cin>>p >>b;
+		a[p] = b;
+		cout<< solve(1,tot,p,lastIsXor)<<"\n";
+	}
 }
