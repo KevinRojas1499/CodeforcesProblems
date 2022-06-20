@@ -28,18 +28,18 @@ struct FenwickTreeOneBasedIndexing {
     ll sum(ll l, ll r) {
         return sum(r) - sum(l - 1);
     }
-    void add(int idx, int val) {
+    void add(ll idx, ll val) {
         for (++idx; idx < n; idx += idx & -idx)
             bit[idx] += val;
     }
 
-    void range_add(int l, int r, int val) {
+    void range_add(ll l, ll r, ll val) {
         add(l, val);
         add(r + 1, -val);
     }
 
-    int point_query(int idx) {
-        int ret = 0;
+    ll point_query(ll idx) {
+        ll ret = 0;
         for (++idx; idx > 0; idx -= idx & -idx)
             ret += bit[idx];
         return ret;
